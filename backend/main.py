@@ -1,23 +1,31 @@
-from fastapi import FastAPI, File, UploadFile
-from PIL import Image
-import io
+from fastapi import FastAPI
+
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.config.database import (
+    engine,
+    Base
+)
+
+from app.routes.auth_routes import router
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(router)
+
 @app.get("/")
 def inicio():
-    return {"mensaje": "API funcionando correctamente"}
-
-@app.post("/analizar")
-async def analizar(file: UploadFile = File(...)):
-    contenido = await file.read()
-
-    imagen = Image.open(io.BytesIO(contenido))
-
-    ancho, alto = imagen.size
 
     return {
-        "estado": "Imagen recibida correctamente",
-        "ancho": ancho,
-        "alto": alto
+        "mensaje": "BIOSCAN IA API"
     }
